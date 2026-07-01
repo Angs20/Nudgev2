@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Nudge — Gentle nudges toward meaningful work. A calm daily task manager.">
+  <meta name="theme-color" content="#E8833A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Nudge — Calm daily planner</title>
+  <link rel="manifest" href="public/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- Welcome / Auth -->
+    <div id="view-welcome" class="view view-auth active">
+      <div class="auth-card">
+        <div class="logo">nudge<span>.</span></div>
+        <p class="tagline">Gentle nudges toward meaningful work.</p>
+        <h2 id="auth-title" style="font-size:1.125rem;margin-bottom:20px">Welcome back</h2>
+        <div id="auth-error" class="auth-error hidden" role="alert"></div>
+        <form id="auth-form">
+          <div class="form-group hidden" id="name-group">
+            <label for="auth-name">Name</label>
+            <input class="input" type="text" id="auth-name" placeholder="Your name" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="auth-email">Email</label>
+            <input class="input" type="email" id="auth-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="auth-password">Password</label>
+            <input class="input" type="password" id="auth-password" placeholder="••••••••" required autocomplete="current-password" minlength="8">
+            <div id="password-strength" class="password-strength hidden">
+              <div class="strength-bar"><div class="strength-bar-fill"></div></div>
+              <span class="strength-label"></span>
+            </div>
+          </div>
+          <p id="forgot-row" class="forgot-link"><button type="button" id="btn-forgot">Forgot password?</button></p>
+          <button type="submit" class="btn btn-primary btn-block" id="auth-submit">Sign in</button>
+        </form>
+        <div class="auth-divider">or</div>
+        <button type="button" class="btn btn-google" id="btn-google">
+          <span id="google-icon"></span> Continue with Google
+        </button>
+        <p class="auth-switch" id="auth-switch-text">No account? <button type="button" id="auth-switch">Sign up</button></p>
+      </div>
+    </div>
+
+    <!-- Forgot Password -->
+    <div id="view-forgot" class="view view-auth">
+      <div class="auth-card">
+        <div class="logo">nudge<span>.</span></div>
+        <h2 style="font-size:1.125rem;margin-bottom:8px">Reset password</h2>
+        <p style="color:var(--color-text-muted);font-size:14px;margin-bottom:20px">Enter your email and we'll generate a reset link.</p>
+        <div id="forgot-error" class="auth-error hidden" role="alert"></div>
+        <div id="forgot-success" class="auth-success hidden" role="status"></div>
+        <form id="forgot-form">
+          <div class="form-group">
+            <label for="forgot-email">Email</label>
+            <input class="input" type="email" id="forgot-email" placeholder="you@example.com" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Send reset link</button>
+        </form>
+        <button type="button" class="btn btn-ghost btn-block" id="btn-forgot-back" style="margin-top:12px">Back to sign in</button>
+      </div>
+    </div>
+
+    <!-- Reset Password -->
+    <div id="view-reset" class="view view-auth">
+      <div class="auth-card">
+        <div class="logo">nudge<span>.</span></div>
+        <h2 style="font-size:1.125rem;margin-bottom:8px">Set new password</h2>
+        <div id="reset-error" class="auth-error hidden" role="alert"></div>
+        <form id="reset-form">
+          <div class="form-group">
+            <label for="reset-password">New password</label>
+            <input class="input" type="password" id="reset-password" placeholder="At least 8 characters" required minlength="8">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Update password</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Onboarding -->
+    <div id="view-onboarding" class="view view-auth">
+      <div class="onboarding-card">
+        <div id="onboarding-mascot"></div>
+        <div class="onboarding-dots"><span class="active"></span><span></span><span></span></div>
+        <h2 id="onboarding-title"></h2>
+        <p id="onboarding-text"></p>
+        <button type="button" class="btn btn-primary btn-block" id="btn-onboarding-next">Next</button>
+        <button type="button" class="btn btn-ghost btn-block" id="btn-onboarding-skip" style="margin-top:8px">Skip</button>
+      </div>
+    </div>
+
+    <!-- Today -->
+    <div id="view-today" class="view">
+      <header class="app-header">
+        <div>
+          <div class="screen-title" id="header-date"></div>
+          <div class="greeting" id="header-greeting"></div>
+        </div>
+        <div class="header-meta">
+          <span class="streak-badge" title="Current streak"><span id="flame-icon"></span> <span id="streak-count">0</span></span>
+          <button class="btn-icon" id="btn-search" aria-label="Search tasks"></button>
+        </div>
+      </header>
+
+      <div class="scroll-content">
+        <form class="composer" id="composer-form">
+          <span id="composer-plus"></span>
+          <input type="text" id="composer-input" placeholder="Add a task…" autocomplete="off" aria-label="Add a task">
+        </form>
+
+        <div class="today-controls">
+          <select id="sort-select" class="sort-select" aria-label="Sort tasks">
+            <option value="manual">Manual order</option>
+            <option value="dueDate">Due date</option>
+            <option value="priority">Priority</option>
+            <option value="created">Created</option>
+          </select>
+          <button type="button" class="btn btn-ghost btn-sm hidden" id="btn-clear-filters">Clear filters</button>
+        </div>
+
+        <div id="filter-chips" class="filter-chips"></div>
+
+        <div id="empty-today" class="empty-state hidden">
+          <div id="empty-mascot"></div>
+          <h3>A calm, clear day ahead.</h3>
+          <p>Add your first task to get a gentle start.</p>
+          <button type="button" class="btn btn-primary" onclick="document.getElementById('composer-input').focus()">+ Add a task</button>
+        </div>
+
+        <div id="filter-empty" class="empty-state hidden">
+          <h3>No tasks match</h3>
+          <p>Try adjusting your filters.</p>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-filters-empty">Clear filters</button>
+        </div>
+
+        <div id="all-done" class="all-done hidden">
+          <div id="alldone-mascot"></div>
+          <h3>All done for today!</h3>
+          <p style="color:var(--color-text-muted);margin-top:8px">You finished what mattered. Enjoy the calm.</p>
+        </div>
+
+        <div class="task-section" id="carry-section">
+          <div class="section-header carry-forward">
+            <h3>Carried forward (<span id="carry-count">0</span>)</h3>
+            <span class="chevron"></span>
+          </div>
+          <div class="task-list" id="carry-list"></div>
+        </div>
+
+        <div class="task-section">
+          <div class="section-header">
+            <h3>Today</h3>
+          </div>
+          <div class="task-list" id="today-list"></div>
+        </div>
+
+        <div class="task-section">
+          <div class="section-header">
+            <h3>Completed</h3>
+            <span class="chevron"></span>
+          </div>
+          <div class="task-list" id="completed-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Planner -->
+    <div id="view-planner" class="view">
+      <div class="planner-header">
+        <button class="btn-icon" id="week-prev" aria-label="Previous week"></button>
+        <h2 class="screen-title" id="week-range" style="font-size:1rem"></h2>
+        <button class="btn-icon" id="week-next" aria-label="Next week"></button>
+      </div>
+      <div class="scroll-content">
+        <div class="week-grid" id="week-grid"></div>
+        <div class="unscheduled-section">
+          <h3>Unscheduled</h3>
+          <p class="unscheduled-hint">Drag tasks onto a day to schedule</p>
+          <div class="chips" id="unscheduled-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div id="view-stats" class="view">
+      <header class="app-header">
+        <div class="screen-title">Your progress</div>
+      </header>
+      <div class="scroll-content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-streak">0</div>
+            <div class="stat-label">Day streak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-today">0</div>
+            <div class="stat-label">Done today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-week">0</div>
+            <div class="stat-label">This week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">All time</div>
+          </div>
+        </div>
+        <div class="stats-section">
+          <h3>Last 7 days</h3>
+          <div class="activity-bar" id="activity-chart"></div>
+        </div>
+        <div class="stats-section">
+          <h3>By category</h3>
+          <div id="category-breakdown" class="category-breakdown"></div>
+        </div>
+        <div class="empty-state" style="padding-top:16px">
+          <p style="color:var(--color-text-muted);font-size:14px">Stats celebrate progress — never shame misses.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div id="view-profile" class="view">
+      <div class="scroll-content">
+        <div class="profile-header">
+          <div class="avatar" id="profile-avatar">A</div>
+          <div class="profile-name" id="profile-name">User</div>
+          <div class="profile-email" id="profile-email">user@example.com</div>
+        </div>
+
+        <div class="settings-list">
+          <div class="settings-item settings-item-block">
+            <div><label>Theme</label><div class="desc">Light, dark, or system</div></div>
+            <div class="theme-options">
+              <button type="button" class="chip theme-option" data-theme="light">Light</button>
+              <button type="button" class="chip theme-option" data-theme="dark">Dark</button>
+              <button type="button" class="chip theme-option selected" data-theme="system">System</button>
+            </div>
+          </div>
+          <div class="settings-item">
+            <div><label>Nima nudges</label><div class="desc">Celebrations &amp; encouragement</div></div>
+            <button class="toggle on" id="toggle-nudges" aria-label="Toggle nudges"></button>
+          </div>
+          <div class="settings-item">
+            <div><label>Week starts on Sunday</label><div class="desc">Off = Monday</div></div>
+            <button class="toggle" id="toggle-week-start" aria-label="Toggle week start"></button>
+          </div>
+        </div>
+
+        <div class="stats-section" style="padding:0 16px">
+          <h3>Categories</h3>
+        </div>
+        <div class="settings-list" style="padding:8px 16px 16px">
+          <div id="categories-list"></div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-add-category" style="margin-top:12px">+ Add category</button>
+        </div>
+
+        <div class="settings-list">
+          <div class="settings-item" style="cursor:pointer" id="btn-export">
+            <label>Export data</label>
+            <span style="color:var(--color-text-muted)">JSON</span>
+          </div>
+          <div class="settings-item" style="cursor:pointer" id="btn-import">
+            <label>Import data</label>
+            <span style="color:var(--color-text-muted)">JSON</span>
+          </div>
+          <input type="file" id="import-file" accept=".json,application/json" class="hidden">
+          <div class="settings-item danger" style="cursor:pointer" id="btn-clear-data">
+            <label>Clear all data</label>
+          </div>
+          <div class="settings-item" style="cursor:pointer" id="btn-logout">
+            <label>Sign out</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav hidden" id="bottom-nav" aria-label="Main navigation">
+      <button class="nav-item active" data-view="today" aria-label="Today">
+        <span class="nav-icon-today"></span>
+        Today
+      </button>
+      <button class="nav-item" data-view="planner" aria-label="Planner">
+        <span class="nav-icon-planner"></span>
+        Planner
+      </button>
+      <button class="nav-item" data-view="stats" aria-label="Stats">
+        <span class="nav-icon-stats"></span>
+        Stats
+      </button>
+      <button class="nav-item" data-view="profile" aria-label="Profile">
+        <span class="nav-icon-profile"></span>
+        Me
+      </button>
+    </nav>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Task Detail Sheet -->
+  <div class="sheet" id="task-sheet" role="dialog" aria-labelledby="detail-title">
+    <div class="sheet-header">
+      <button class="btn-icon" id="sheet-close" aria-label="Close"></button>
+      <button class="btn-icon" id="detail-delete" aria-label="Delete task" style="color:var(--color-danger)"></button>
+    </div>
+    <div class="sheet-body">
+      <div class="detail-field">
+        <input class="detail-title-input" id="detail-title" placeholder="Task title" aria-label="Task title">
+      </div>
+      <div class="detail-field">
+        <label>Due date &amp; time</label>
+        <div class="date-time-row">
+          <input class="input" type="date" id="detail-date">
+          <input class="input" type="time" id="detail-time">
+        </div>
+      </div>
+      <div class="detail-field">
+        <label>Priority</label>
+        <div class="chips" id="priority-chips"></div>
+      </div>
+      <div class="detail-field">
+        <label>Category</label>
+        <div class="chips" id="category-chips"></div>
+      </div>
+      <div class="detail-field">
+        <label>Tags <span style="font-weight:400;text-transform:none">(comma separated)</span></label>
+        <input class="input" type="text" id="detail-tags" placeholder="e.g. urgent, deck">
+      </div>
+      <div class="detail-field">
+        <label>Repeat</label>
+        <div class="chips" id="recurrence-chips"></div>
+      </div>
+      <div class="detail-field">
+        <label>Notes</label>
+        <textarea class="input" id="detail-notes" placeholder="Add details…" rows="3"></textarea>
+      </div>
+      <div class="detail-field">
+        <label>Subtasks <span id="subtask-count"></span></label>
+        <div class="subtask-list" id="subtask-list"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-add-subtask" style="margin-top:8px">+ Add subtask</button>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button type="button" class="btn btn-primary btn-block" id="detail-save">Save</button>
+    </div>
+  </div>
+
+  <!-- Search Sheet -->
+  <div class="sheet" id="search-sheet" role="dialog" aria-label="Search tasks">
+    <div class="sheet-header">
+      <h2 style="font-size:1rem;font-weight:600">Search</h2>
+      <button class="btn-icon" id="search-close" aria-label="Close"></button>
+    </div>
+    <div class="sheet-body" style="padding-top:0">
+      <div class="search-bar">
+        <span id="search-icon"></span>
+        <input type="search" id="search-input" placeholder="Search tasks, notes, tags…" aria-label="Search">
+      </div>
+      <div id="search-results"></div>
+    </div>
+  </div>
+
+  <!-- Delete Dialog -->
+  <div class="dialog" id="dialog-delete" role="alertdialog">
+    <h3>Delete task with subtasks?</h3>
+    <p>This will also remove all subtasks. This action can be undone for 5 seconds.</p>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" id="dialog-delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="dialog-delete-confirm">Delete all</button>
+    </div>
+  </div>
+
+  <!-- Complete Subtasks Dialog -->
+  <div class="dialog" id="dialog-complete-subs" role="alertdialog">
+    <h3>Complete subtasks too?</h3>
+    <p>This task has open subtasks. Would you like to mark them all as done?</p>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" id="dialog-complete-cancel">Cancel</button>
+      <button class="btn btn-secondary" id="dialog-complete-only">Task only</button>
+      <button class="btn btn-primary" id="dialog-complete-all">Complete all</button>
+    </div>
+  </div>
+
+  <!-- Clear Data Dialog -->
+  <div class="dialog" id="dialog-clear" role="alertdialog">
+    <h3>Clear all data?</h3>
+    <p>This will permanently remove all tasks, settings, and sign you out. This cannot be undone.</p>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" id="dialog-clear-cancel">Cancel</button>
+      <button class="btn btn-danger" id="dialog-clear-confirm">Clear everything</button>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('composer-plus').innerHTML = Icons.plus;
+    document.getElementById('flame-icon').innerHTML = Icons.flame;
+    document.getElementById('btn-search').innerHTML = Icons.search;
+    document.getElementById('google-icon').innerHTML = Icons.google;
+    document.querySelectorAll('.chevron').forEach(el => el.innerHTML = Icons.chevron);
+    document.getElementById('week-prev').innerHTML = Icons.back;
+    document.getElementById('week-next').innerHTML = Icons.back.replace('15 18 9 12 15 6', '9 18 15 12 9 6');
+    document.getElementById('sheet-close').innerHTML = Icons.back;
+    document.getElementById('detail-delete').innerHTML = Icons.trash;
+    document.getElementById('search-close').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    document.getElementById('search-icon').innerHTML = Icons.search;
+    document.querySelector('.nav-icon-today').innerHTML = Icons.today;
+    document.querySelector('.nav-icon-planner').innerHTML = Icons.planner;
+    document.querySelector('.nav-icon-stats').innerHTML = Icons.stats;
+    document.querySelector('.nav-icon-profile').innerHTML = Icons.profile;
+  </script>
+</body>
+</html>

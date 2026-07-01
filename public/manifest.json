@@ -1,0 +1,17 @@
+{
+  "name": "Nudge",
+  "short_name": "Nudge",
+  "description": "Gentle nudges toward meaningful work. A calm daily task manager.",
+  "start_url": "../index.html",
+  "display": "standalone",
+  "background_color": "#F7F9FB",
+  "theme_color": "#E8833A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23E8833A'/><stop offset='100%25' stop-color='%234A90D9'/></linearGradient></defs><rect width='80' height='80' rx='16' fill='url(%23g)'/><ellipse cx='40' cy='44' rx='22' ry='20' fill='%23FBE6D4'/><circle cx='32' cy='38' r='3' fill='%231F2933'/><circle cx='48' cy='38' r='3' fill='%231F2933'/></svg>",
+      "sizes": "80x80",
+      "type": "image/svg+xml"
+    }
+  ]
+}
